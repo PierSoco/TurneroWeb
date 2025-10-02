@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo de Turnero</title>
+    <link rel="website icon" type="png" href="icono.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">    
+</head>
+<body>
+    <div id="app">
+        <header class="encabezado" id="main-header">
+            <img class="logo" src="logo.png" alt="">
+            <nav id="main-nav" class="hidden">
+                <button id="reserve-button" class="nav-button hidden" onclick="showSection('user-section')">Reservar</button>
+                <button id="my-appointments-button" class="nav-button hidden" onclick="showSection('my-appointments')">Mis Turnos</button>
+                <button id="work-hours-button" class="nav-button-cerrarsesion hidden" onclick="toggleWorkHours()">Hora de trabajo</button>
+                <button id="logout-button" class="nav-button-cerrarsesion hidden" onclick="handleLogout()">Cerrar Sesión</button>
+            </nav>
+            <div id="user-header" class="user-header">
+                <div id="name-header" class="name-header"></div>
+                <div id="id-header" class="name-header"></div>
+            </div>
+        </header>
+
+        <main class="secc">
+            <section id="auth-section" class="section">
+                <div id="login-form" class="form">
+                    <h2 class="confirmmtitulorojo">Iniciar Sesión</h2>
+                    <div class="input-group">
+                        <i class="fas fa-id-card input-icon"></i>
+                        <input type="text" id="login-id" placeholder="ID de Cliente o 'admin'" required>
+                    </div>
+                    <button onclick="login()">Iniciar Sesión</button>
+                    <div class="gapsolicitarid">
+                        <div class="solicitarid">
+                            <p>¿No tienes un ID?</p>
+                            <div class="popover-container">
+                                <button class="popover-btn"><h4>Solicitar ID</h4></button>
+                                <div class="popover-content">
+                                    <p>Este enlase te enviara a un contacto para poder crear un usuario nuevo.</p>
+                                </div>
+                            </div>                        
+                        </div>
+                        <div class="solicitarid">
+                            <p>¿Olvidaste tu ID?</p>
+                            <div class="popover-container">
+                                <button class="popover-btn"><h4>Recuperar ID</h4></button>
+                                <div class="popover-content">
+                                    <p>Este enlase abrira un menu emergente el cual ayudara a los usuarios a recuperar su ID.</p>
+                                </div>
+                            </div>  
+                        </div>                        
+                    </div>
+                </div>
+            </section>
+
+            <section id="user-section" class="section hidden">
+                <h2 class="confirmmtitulorojo">Reservar un Turno</h2>
+                <div id="calendar-container">
+                    <div class="hoy">
+                        <div class="subhoy">
+                            <h2 id="hoyes"></h2>
+                            <h2 id="estacerrado"></h2>
+                        </div>
+                    </div>
+                    <div class="hoy">
+                        <button class="calendar-controls" onclick="goToToday()">Hoy</button>
+                        <button class="calendar-controls" onclick="openDateModal()"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div id="month-nav" class="month-nav">
+                        <div class="mesybotones">
+                            <button class="month-nav-btn" onclick="changeMonth(-1)"><</button>
+                            <div class="current-month-year" onclick="openDateModal()">
+                                <h3 id="current-month"></h3>
+                                <p id="current-year"></p>
+                            </div>
+                            <button class="month-nav-btn" onclick="changeMonth(1)">></button>
+                        </div>
+                    </div>
+                    <div id="calendar-header"></div>
+                    <div id="calendar"></div>
+                </div>
+                <div id="time-slots" class="hidden">
+                    <h3 class="confirmmtituloazul">Horarios Disponibles</h3>
+                    <div id="slots"></div>
+                </div>
+            </section>
+
+            <section id="my-appointments" class="section hidden">
+                <h2 class="confirmmtituloazul">Mis Turnos</h2>
+                <div class="appointment-toggle">
+                    <div class="toggle-container">
+                        <span class="toggle-option" data-option="upcoming"><h3>Turnos Reservados</h3></span>
+                        <span class="toggle-option" data-option="history"><h3>Historial de Turnos</h3></span>
+                        <span class="toggle-underline"></span>
+                    </div>
+                </div>
+                <div id="user-appointments-list"></div>
+                <div id="user-appointments-pagination"></div>
+            </section>
+
+            <section id="admin-section" class="section hidden">
+                <h2 class="confirmmtitulorojo">Panel de Administrador</h2>
+                <div class="admin-boton" id="admin-nav">
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('appointments-list')"><i class="fas fa-list"></i> Ver Turnos</button>
+                        <div class="popover-content">
+                            <p>Los turnos se mustran en forma de calendario para tener una vista general, al seleccionar un dia se mostraran los horarios con información del turno.</p>
+                        </div>
+                    </div>  
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('close-day')"><i class="fas fa-door-closed"></i> Cerrar Día</button>
+                        <div class="popover-content">
+                            <p>Al cerrar un dia se cancelaran los turnos reservados para dicho dia.</p>
+                        </div>
+                    </div>  
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('closed-days-history')"><i class="fas fa-history"></i> Historial de Días Cerrados</button>
+                        <div class="popover-content">
+                            <p>Se mostraran los dias que has cerrado anteriormente y tendras la opción de reabrirlos.</p>
+                        </div>
+                    </div>  
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('stats')"><i class="fas fa-chart-bar"></i> Estadísticas</button>
+                        <div class="popover-content">
+                            <p>Actualmente se muestran estadisticas por mes, pero tambien se pueden hacer por dia.</p>
+                        </div>
+                    </div>  
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('generate-id')"><i class="fas fa-user-plus"></i> Generar ID de Cliente</button>
+                        <div class="popover-content">
+                            <p>Esta sección crea un nuevo usuario con un ID para que el cliente pueda iniciar sesión.</p>
+                        </div>
+                    </div>  
+                    <div class="popover-container">
+                        <button id="botonadminp" class="botonadmin" onclick="showAdminSection('client-list')"><i class="fas fa-users"></i> Lista de Clientes</button>
+                        <div class="popover-content">
+                            <p>Tendras una lista con todos los datos de los clientes, tambien prodas eliminar y editas la información.</p>
+                        </div>
+                    </div>  
+                </div>
+                <div id="appointments-list" class="admin-subsection">
+                    <h2 class="confirmmtituloazul">Ver Turnos</h2>
+                    <div id="admin-calendar-container">
+                        <div class="hoy">
+                            <div class="subhoy">
+                                <h2 id="admin-hoyes"></h2>
+                                <h2 id="admin-estacerrado"></h2>
+                            </div>
+                        </div>
+                        <div class="hoy">
+                            <button class="calendar-controls" onclick="adminGoToToday()">Hoy</button>
+                            <button class="calendar-controls" onclick="openAdminDateModal()"><i class="fas fa-search"></i></button>
+                        </div>
+                        <div id="admin-month-nav" class="month-nav">
+                            <div class="mesybotones">
+                                <button class="month-nav-btn" onclick="adminChangeMonth(-1)"><</button>
+                                <div class="current-month-year" onclick="openAdminDateModal()">
+                                    <h3 id="admin-current-month"></h3>
+                                    <p id="admin-current-year"></p>
+                                </div>
+                                <button class="month-nav-btn" onclick="adminChangeMonth(1)">></button>
+                            </div>
+                        </div>
+                        <div id="admin-calendar-header"></div>
+                        <div id="admin-calendar"></div>
+                    </div>
+                    <div id="admin-time-slots" class="hidden">
+                        <h3 class="confirmmtituloazul">Horarios del Día</h3>
+                        <div id="admin-slots"></div>
+                    </div>
+                <div id="close-day" class="admin-subsection hidden">
+                    <h3 class="confirmmtituloazul">Cerrar un Día</h3>
+                    <div class="input-group">
+                        <i class="fas fa-calendar input-icon"></i>
+                        <input type="date" id="close-date">
+                    </div>
+                    <button onclick="showCloseDayConfirmation()" class="btncloseday">Cerrar Día</button>
+                </div>
+                <div id="closed-days-history" class="admin-subsection hidden">
+                    <h3 class="confirmmtituloazul">Historial de Días Cerrados</h3>
+                    <ul id="closed-days-list"></ul>
+                </div>
+                <div id="stats" class="admin-subsection hidden">
+                    <h3 class="confirmmtituloazul">Estadísticas de Reservas</h3>
+                    <div id="stats-container">
+                        <canvas id="appointmentsChart"></canvas>
+                    </div>
+                </div>
+                <div id="generate-id" class="admin-subsection hidden">
+                    <h3 class="confirmmtituloazul">Generar ID de Cliente</h3>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="new-client-name" placeholder="Nombre del cliente" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="new-client-lastname" placeholder="Apellido del cliente" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="new-client-contact" placeholder="Contacto" required>
+                    </div>
+                    <button onclick="generateClientId()"><i class="fas fa-plus-circle"></i> Generar ID</button>
+                    <div id="error-message" class="error-message hidden"></div>
+                    <div id="generated-id" class="hidden">
+                        <p>ID generado: <span id="new-client-id"></span></p>
+                    </div>
+                </div>       
+                <div id="client-list" class="admin-subsection hidden">
+                    <h3 class="confirmmtituloazul">Lista de Clientes</h3>
+                    <div class="table-container">
+                        <table id="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>ID del Cliente</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Contacto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        
+            <section id="work-hours-section" class="section hidden">
+                <div class="work-hours-header">
+                    <button class="back-button" onclick="hideWorkHours()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2 class="work-hours-title">Hora de trabajo</h2>
+                </div>
+                <div id="today-appointments-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="adminDateModal" class="modal" onclick="closeAdminDateModal()">
+        <div class="modal-content">
+            <h2>Seleccionar Mes y Año</h2>
+            <div class="selecfecha">
+                <select id="adminMonthSelect"></select>
+                <select id="adminYearSelect"></select>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="applyAdminDateSelection()">Aplicar</button>
+                <button onclick="closeAdminDateModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <h2>Nombre del Negocio</h2>
+        <p>Frase que use el negocio o un breve texto que haga referencia al negocio</p>
+        <div class="footerdiv">
+            <div class="redessociales">
+                <p>informacion sobre quienes lo atienden [breve]</p>
+                <p>informacion del dueño [breve]</p>
+                <p>Direccion del local</p>
+                <p>contactos como número de telefono, correo electronico, redes social, etc.</p>
+                <p>Acceso directo a redes sociales</p>
+                <div>
+                    <img src="facebook-icon.png" alt="Facebook" class="redes">
+                    <img src="instagram-icon.webp" alt="Instagram" class="redes">
+                    <img src="Whatsapp-Logo.png" alt="Instagram" class="redes">
+                </div>
+            </div>
+        </div>
+
+        <div class="linea"></div>
+
+        <div class="maszatmeni">
+            <p>Creado por </p>
+            <a href="https://zatmeni.ar/" style=" font-size: 17px; color: #fff;">
+                <div class="zatmeni">
+                    <div class="planet">
+                        <div class="satelite"></div>
+                    </div>
+                    <h3>Zatmeni</h3>
+                </div>
+            </a>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 12px;">
+            <p>&copy; 2024 [Nombre de su negocio]. Todos los derechos reservados.</p>
+        </div>
+
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
